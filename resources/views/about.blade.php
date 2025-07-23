@@ -1,17 +1,11 @@
 <x-header title="About" />
 
-<body>
-    <h1
-        class="text-3xl font-bold underline text-center mt-10 text-blue-500 hover:text-blue-600 transition-colors duration-300">
-        About Us
-    </h1>
-    <p class="text-center mt-5">
-        This is a simple application to demonstrate the use of Laravel and Blade templates.
-    </p>
-    <p class="text-center mt-2">
-        Feel free to explore the code and contribute!
-    </p>
-
-</body>
-
+<x-layout>
+    <div class="ml-64 flex-1 p-10">
+        <h1 class="text-3xl font-bold mb-4">About .poster</h1>
+        <p class="text-gray-600">.poster is your go-to platform for discovering and sharing creative posters.</p>
+        <p class="mt-4">Whether you're an artist looking to showcase your work or a poster enthusiast, .poster has
+            something for everyone.</p>
+    </div>
+</x-layout>
 <x-footer />
