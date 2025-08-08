@@ -1,45 +1,65 @@
-<body class="bg-gray-50 text-gray-900 font-sans antialiased">
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <nav
-            class="w-64 bg-gray-900 text-white flex flex-col items-center py-8 space-y-6 fixed left-0 top-0 h-full shadow-lg">
-            <!-- Logo -->
-            <a href="/" class="flex items-center space-x-3 px-4 mb-6 ">
-                <img src="{{ \Illuminate\Support\Facades\Vite::asset('resources/images/whitelogo.png') }}" alt="logo"
-                    class="w-55 h-55 object-cover  hover:scale-115 transition-transform duration-300 ease-in-out">
-            </a>
+<x-header title=".poster" />
 
-            <!-- Navigation Links -->
-            <ul class="w-full px-6 space-y-4 mb-6">
-                <li><x-sidelink link="/">Home</x-sidelink></li>
-                <li><x-sidelink link="#">Posters</x-sidelink></li>
-                <li><x-sidelink link="#">Contact</x-sidelink></li>
-                <li><x-sidelink link="/about">About</x-sidelink></li>
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-100 min-h-screen font-sans">
 
-            </ul>
-            <!-- Bottom user section -->
-            <div class="mt-auto w-full px-4 pb-6">
-                @auth
-                    <form method="POST" action="/logout">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                            class="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors duration-300 ease-in-out">
-                            Logout
-                        </button>
-                    </form>
-                @else
-                    <div class="ml-4 flex space-between space-x-6">
-                        <x-button name="Login" href="/login" />
-                        <x-button name="Register" href="/register" />
-                    </div>
-                @endauth
+    <nav class="sticky top-0 z-30 bg-white/90 rounded-b-3xl backdrop-blur shadow-lg border-b border-indigo-100 mt-5">
+        <div class="container mx-auto px-12 py-5 flex items-center min-h-[80px] mt-2">
+            <div class="flex items-center gap-5">
+                <img src="{{ \Illuminate\Support\Facades\Vite::asset('resources/images/fulllogo.png') }}"
+                    alt="PosterShop Logo" class="w-16 h-16 rounded-full shadow-lg"
+                    onerror="this.onerror=null;this.src='{{ \Illuminate\Support\Facades\Vite::asset('resources/images/icon.jpg') }}';">
+                <span class="text-indigo-700 text-3xl font-extrabold tracking-wide">PosterShop</span>
             </div>
+            <ul class="flex gap-12 items-center text-xl font-semibold text-indigo-700 flex-1 justify-center">
+                <li><a href="/" class="hover:text-indigo-500 hover:scale-105 transition-all duration-200">Home</a>
+                </li>
+                <li class="relative group ">
+                    <span
+                        class="cursor-pointer hover:text-indigo-500 hover:scale-105 transition-all duration-200">Collections</span>
+                    <ul
+                        class="absolute left-0 mt-2 bg-white shadow-xl rounded-lg py-2 px-4 hidden group-hover:block z-20 min-w-[140px] border border-indigo-100">
+                        <li><a href="/collections/films"
+                                class="block py-1 px-2 hover:bg-indigo-100 hover:text-indigo-700 rounded transition-all duration-200">Films</a>
+                        </li>
+                        <li><a href="/collections/sports"
+                                class="block py-1 px-2 hover:bg-indigo-100 hover:text-indigo-700 rounded transition-all duration-200">Sports</a>
+                        </li>
+                        <li><a href="/collections/randoms"
+                                class="block py-1 px-2 hover:bg-indigo-100 hover:text-indigo-700 rounded transition-all duration-200">Randoms</a>
+                        </li>
+                    </ul>
+                </li>
+                <li><a href="/contact" class="hover:text-indigo-500 hover:scale-105 transition-all duration-200">Contact
+                        us</a></li>
+            </ul>
+        </div>
+    </nav>
 
-        </nav>
-
-        {{ $slot ?? '' }}
-
-
+    <div class="container mx-auto flex items-center py-4">
+        <div class="flex items-center gap-4">
+            @auth
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    @method('DELETE')
+                    <x-button name="Logout" type="submit"
+                        class="ml-2 bg-gradient-to-r from-red-500 to-red-500 text-white font-bold shadow-md hover:from-red-600 hover:to-blue-600 hover:scale-105" />
+                </form>
+            @else
+                <a href="{{ route('login') }}"><x-button name="Login" type="button" class="ml-2" /></a>
+                <a href="{{ route('register') }}">
+                    <x-button name="Register" type="button"
+                        class="ml-4 bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-bold shadow-md hover:from-indigo-600 hover:to-blue-600" />
+                </a>
+            @endauth
+        </div>
+        <div class="flex-1"></div>
     </div>
+    <main class="container mx-auto px-4 py-12 flex flex-col items-center">
+        <div class="w-full max-w-4xl bg-white/80 shadow-2xl rounded-2xl p-10 border-4 border-transparent bg-clip-padding"
+            style="border-image: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%) 1;">
+            @yield('content')
+        </div>
+    </main>
+
 </body>
+<x-footer />
