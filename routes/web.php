@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 
 // Helper to get posters from config
 if (!function_exists('all_posters')) {
-    function all_posters(): array {
+    function all_posters(): array
+    {
         return config('posters', []);
     }
 }
@@ -104,3 +105,8 @@ Route::prefix('admin')->group(function () {
         return view('admin.posters.show', ['poster' => $poster]);
     })->name('admin.posters.show');
 });
+
+// Poster customization page
+Route::get('/posters-customize', function () {
+    return view('poster-customize');
+})->name('poster.customize');
