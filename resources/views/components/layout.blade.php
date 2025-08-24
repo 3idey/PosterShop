@@ -15,18 +15,20 @@
                 <ul id="nav-menu" class="hidden md:flex gap-10 items-center text-lg font-semibold text-indigo-700">
                     <li><a href="/"
                             class="hover:text-indigo-500 hover:scale-105 transition-all duration-200">Home</a></li>
+                    <li><a href="{{ route('posters.index') }}"
+                            class="hover:text-indigo-500 hover:scale-105 transition-all duration-200">Posters</a></li>
                     <li class="relative group">
                         <span
                             class="cursor-pointer hover:text-indigo-500 hover:scale-105 transition-all duration-200">Collections</span>
                         <ul
                             class="absolute left-0 mt-2 bg-white shadow-xl rounded-lg py-2 px-4 hidden group-hover:block z-20 min-w-[160px] border border-indigo-100">
-                            <li><a href="/collections/films"
+                            <li><a href="{{ route('collections.show', 'films') }}"
                                     class="block py-1 px-3 hover:bg-indigo-100 hover:text-indigo-700 rounded transition-all duration-200">Films</a>
                             </li>
-                            <li><a href="/collections/sports"
+                            <li><a href="{{ route('collections.show', 'sports') }}"
                                     class="block py-1 px-3 hover:bg-indigo-100 hover:text-indigo-700 rounded transition-all duration-200">Sports</a>
                             </li>
-                            <li><a href="/collections/randoms"
+                            <li><a href="{{ route('collections.show', 'randoms') }}"
                                     class="block py-1 px-3 hover:bg-indigo-100 hover:text-indigo-700 rounded transition-all duration-200">Randoms</a>
                             </li>
 
@@ -43,11 +45,12 @@
                     <a href="{{ route('cart.show') }}"
                         class="relative inline-flex items-center gap-2 text-indigo-700 hover:text-indigo-900">
                         <span class="inline-block">Cart</span>
-                        @php($cartCount = count(session('cart', [])))
+                        @php($cartCount = session('cart_count', 0))
                         <span
                             class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-600 text-white text-xs">{{ $cartCount }}</span>
                     </a>
                     @auth
+                        <a href="{{ route('profile.show') }}" class="text-indigo-700 hover:text-indigo-900">Profile</a>
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
                             @method('DELETE')
@@ -80,11 +83,11 @@
                             <summary class="cursor-pointer py-2 px-3 rounded-lg hover:bg-indigo-50">Collections
                             </summary>
                             <ul class="pl-4 py-2">
-                                <li><a href="/collections/films"
+                                <li><a href="{{ route('collections.show', 'films') }}"
                                         class="block py-1 px-3 rounded hover:bg-indigo-50">Films</a></li>
-                                <li><a href="/collections/sports"
+                                <li><a href="{{ route('collections.show', 'sports') }}"
                                         class="block py-1 px-3 rounded hover:bg-indigo-50">Sports</a></li>
-                                <li><a href="/collections/randoms"
+                                <li><a href="{{ route('collections.show', 'randoms') }}"
                                         class="block py-1 px-3 rounded hover:bg-indigo-50">Randoms</a></li>
                             </ul>
                         </details>
@@ -95,11 +98,12 @@
                     <a href="{{ route('cart.show') }}"
                         class="w-full inline-flex items-center justify-between px-3 py-2 rounded-xl border border-indigo-200 text-indigo-700 hover:bg-indigo-50">
                         <span>Cart</span>
-                        @php($cartCount = count(session('cart', [])))
+                        @php($cartCount = session('cart_count', 0))
                         <span
                             class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-600 text-white text-xs">{{ $cartCount }}</span>
                     </a>
                     @auth
+                        <a href="{{ route('profile.show') }}" class="w-full inline-flex items-center justify-center px-3 py-2 rounded-xl border border-indigo-200 text-indigo-700 hover:bg-indigo-50">Profile</a>
                         <form method="POST" action="{{ route('logout') }}" class="inline w-full">
                             @csrf
                             @method('DELETE')
@@ -128,8 +132,7 @@
         </main>
     @else
         <main class="container mx-auto px-4 py-12 flex flex-col items-center">
-            <div class="w-full max-w-4xl bg-white/80 shadow-2xl rounded-2xl p-10 border-4 border-transparent bg-clip-padding"
-                style="border-image: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%) 1;">
+            <div class="w-full max-w-6xl bg-white/80 shadow-xl rounded-3xl p-8 md:p-12 border border-indigo-100">
                 @yield('content')
                 {{ $slot ?? '' }}
             </div>

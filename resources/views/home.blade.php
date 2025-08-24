@@ -1,36 +1,86 @@
 @extends('components.layout')
 
 @section('full')
-    <div class="flex flex-col items-center justify-center text-center py-10 w-full mx-auto">
-        <h1 class="text-5xl font-extrabold text-indigo-700 mb-4 tracking-tight drop-shadow-lg">Welcome to PosterShop</h1>
-        <p class="text-xl text-indigo-500 mb-8 max-w-2xl">Discover, collect, and share creative posters from artists and
-            fans around the world. Your poster gallery starts here!</p>
-        <a href="/collections/films"
-            class="inline-block bg-gradient-to-r from-indigo-600 to-blue-500 text-white px-8 py-3 rounded-xl shadow-lg hover:scale-105 hover:from-indigo-700 hover:to-blue-600 transition-all text-lg font-semibold mb-12">Browse
-            Collections</a>
-
-        <div class="grid w-full gap-6 sm:gap-8 mt-8 grid-cols-[repeat(auto-fill,minmax(220px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(260px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
-            @foreach (($posters ?? config('posters')) as $slug => $p)
-                <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-indigo-200 hover:shadow-3xl hover:scale-105 transition-all duration-300">
-                    <a href="{{ route('poster.show', ['slug' => $slug]) }}" class="block">
-                        <div class="h-80 bg-gray-50 flex items-center justify-center overflow-hidden">
-                            <img src="{{ \Illuminate\Support\Facades\Vite::asset($p['image']) }}" alt="{{ $p['title'] }}" class="object-cover w-full h-full rounded-t-3xl">
-                        </div>
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden rounded-3xl">
+        <div class="relative bg-gradient-to-r from-indigo-600 via-indigo-500 to-indigo-400 text-white rounded-3xl p-10 md:p-16 shadow-2xl">
+            <div class="max-w-3xl">
+                <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">Discover Posters You'll Love</h1>
+                <p class="mt-4 text-indigo-100 text-lg md:text-xl">Browse curated collections of film, sports, and more. Add to cart and checkout in seconds.</p>
+                <div class="mt-8 flex items-center gap-4">
+                    <a href="#featured" class="inline-flex items-center gap-2 bg-white text-indigo-700 font-semibold px-5 py-3 rounded-xl shadow hover:bg-indigo-50">
+                        Explore Featured
                     </a>
-                    <div class="p-4 flex flex-col items-center">
-                        <h2 class="text-lg font-bold text-indigo-700">{{ $p['title'] }}</h2>
-                        @if (!empty($p['description']))
-                            <p class="text-gray-500 mb-2 line-clamp-2">{{ $p['description'] }}</p>
-                        @endif
-                        <form method="POST" action="{{ route('cart.add') }}" class="w-full">
-                            @csrf
-                            <input type="hidden" name="poster" value="{{ $slug }}">
-                            <x-button name="Add to Cart" type="submit" class="mt-2 w-full" />
-                        </form>
-                    </div>
+                    <a href="{{ route('poster.customize') }}" class="inline-flex items-center gap-2 bg-indigo-800/40 text-white font-semibold px-5 py-3 rounded-xl border border-white/30 hover:bg-indigo-800/60">
+                        Customize a Poster
+                    </a>
                 </div>
-            @endforeach
+            </div>
+            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-300/30 rounded-full blur-2xl"></div>
+            <div class="absolute -right-24 top-0 w-72 h-72 bg-white/20 rounded-full blur-3xl"></div>
         </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl p-6 border border-indigo-100 shadow-sm">
+            <div class="text-indigo-600 font-bold">Curated Collections</div>
+            <p class="mt-2 text-indigo-600/80">Hand-picked posters across films, sports, and more.</p>
         </div>
-    </div>
+        <div class="bg-white rounded-2xl p-6 border border-indigo-100 shadow-sm">
+            <div class="text-indigo-600 font-bold">Fast Checkout</div>
+            <p class="mt-2 text-indigo-600/80">Add to cart and complete your order in seconds.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-indigo-100 shadow-sm">
+            <div class="text-indigo-600 font-bold">Quality Prints</div>
+            <p class="mt-2 text-indigo-600/80">Premium-quality prints that make any wall pop.</p>
+        </div>
+    </section>
+
+    <!-- Featured Posters -->
+    <section id="featured" class="mt-12">
+        <h2 class="text-2xl font-extrabold text-indigo-700">Featured Posters</h2>
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            @if(isset($featured) && $featured->count())
+                @foreach ($featured as $p)
+                    <div class="group bg-white rounded-2xl border border-indigo-100 overflow-hidden shadow-sm hover:shadow-md transition">
+                        <a href="{{ route('poster.show', $p->slug) }}" class="block">
+                            @if ($p->image)
+                                <x-poster-image :src="$p->image" :alt="$p->title" class="w-full h-56 object-cover" />
+                            @endif
+                        </a>
+                        <div class="p-4">
+                            <a href="{{ route('poster.show', $p->slug) }}" class="font-bold text-indigo-700 group-hover:text-indigo-800">{{ $p->title }}</a>
+                            <div class="text-indigo-500">${{ number_format($p->price, 2) }}</div>
+                            <form method="POST" action="{{ route('cart.add') }}" class="mt-3">
+                                @csrf
+                                <input type="hidden" name="slug" value="{{ $p->slug }}">
+                                <button class="rounded-xl bg-indigo-600 text-white px-4 py-2 hover:bg-indigo-700">Add to cart</button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                @php
+                    $fallback = config('posters');
+                @endphp
+                @foreach ($fallback as $slug => $p)
+                    <div class="group bg-white rounded-2xl border border-indigo-100 overflow-hidden shadow-sm hover:shadow-md transition">
+                        <a href="{{ route('poster.show', $slug) }}" class="block">
+                            <x-poster-image :src="$p['image']" :alt="$p['title']" class="w-full h-56 object-cover" />
+                        </a>
+                        <div class="p-4">
+                            <a href="{{ route('poster.show', $slug) }}" class="font-bold text-indigo-700 group-hover:text-indigo-800">{{ $p['title'] }}</a>
+                            <div class="text-indigo-500">${{ number_format($p['price'], 2) }}</div>
+                            <form method="POST" action="{{ route('cart.add') }}" class="mt-3">
+                                @csrf
+                                <input type="hidden" name="slug" value="{{ $slug }}">
+                                <button class="rounded-xl bg-indigo-600 text-white px-4 py-2 hover:bg-indigo-700">Add to cart</button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
+        </div>
+    </section>
 @endsection

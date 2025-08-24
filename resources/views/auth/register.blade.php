@@ -4,7 +4,7 @@
     <div class="flex justify-center items-center min-h-[60vh]">
         <div class="w-full max-w-lg bg-white/90 shadow-2xl rounded-2xl p-10 border border-indigo-100">
             <h1 class="text-4xl font-extrabold mb-8 text-center text-indigo-700 tracking-tight">Create Your Account</h1>
-            <form method="POST" action="{{ route('register') }}" class="space-y-6">
+            <form method="POST" action="/register" class="space-y-6">
                 @csrf
                 <div>
                     <label for="name" class="block text-base font-medium text-indigo-700">Name</label>

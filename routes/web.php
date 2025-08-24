@@ -3,110 +3,81 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CartController;
 
-// Helper to get posters from config
-if (!function_exists('all_posters')) {
-    function all_posters(): array
-    {
-        return config('posters', []);
-    }
-}
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
+use App\Models\Poster;
+
+// Home with featured posters
 Route::get('/', function () {
-    return view('home', ['posters' => all_posters()]);
+    $featured = Poster::query()->latest()->take(6)->get();
+    return view('home', compact('featured'));
+})->name('home');
+
+// About page
+Route::view('/about', 'about')->name('about');
+
+// Auth routes
+Route::get('/login', [LoginController::class, 'create'])->name('login');
+Route::post('/login', [LoginController::class, 'store']);
+Route::delete('/logout', [LoginController::class, 'destroy'])->name('logout');
+
+Route::get('/register', [RegisterController::class, 'create'])->name('register');
+Route::post('/register', [RegisterController::class, 'store']);
+
+// Profile routes (require auth)
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 
-Route::get('/about', function () {
-    return view('about');
-});
+// Cart routes (DB-backed)
+Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::patch('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-Route::get('/login', [LoginController::class, 'create'])->middleware('guest')->name('login');
-Route::post('/login', [LoginController::class, 'store'])->middleware('guest');
-Route::delete('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+use App\Http\Controllers\PostersController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\Admin\PostersAdminController;
 
-Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
-Route::post('/register', [RegisterController::class, 'store'])->middleware('guest');
+// Posters
+Route::get('/posters', [PostersController::class, 'index'])->name('posters.index');
+Route::get('/posters/{poster:slug}', [PostersController::class, 'show'])->name('poster.show');
 
-// Posters - single page
-Route::get('/posters/{slug}', function (string $slug) {
-    $all = all_posters();
-    abort_unless(array_key_exists($slug, $all), 404);
-    $poster = $all[$slug];
-    $poster['slug'] = $slug;
-    return view('poster', ['poster' => $poster]);
-})->name('poster.show');
+// Collections
+Route::get('/collections/{category}', [PostersController::class, 'collection'])->name('collections.show');
 
-// Cart
-Route::get('/cart', function () {
-    $all = all_posters();
-    $cart = session()->get('cart', []);
-    $items = [];
-    foreach ($cart as $item) {
-        if (isset($all[$item])) {
-            $slug = $item;
-            $data = $all[$slug];
-            $items[] = ['slug' => $slug, 'title' => $data['title'], 'image' => $data['image'], 'price' => $data['price']];
-        } else {
-            $matchSlug = collect($all)->first(function ($val, $key) use ($item) {
-                return strcasecmp($val['title'], $item) === 0 || strcasecmp($key, $item) === 0;
-            });
-            if ($matchSlug) {
-                $slug = array_search($matchSlug, $all, true);
-                $items[] = ['slug' => $slug, 'title' => $matchSlug['title'], 'image' => $matchSlug['image'], 'price' => $matchSlug['price']];
-            }
-        }
-    }
-    return view('cart', ['items' => $items]);
-})->name('cart.show');
-
-Route::post('/cart/add', function (Request $request) {
-    $slug = $request->input('poster');
-    $all = all_posters();
-    if (!array_key_exists($slug, $all)) {
-        return redirect()->back()->with('success', 'Item not found');
-    }
-    $cart = session()->get('cart', []);
-    $cart[] = $slug;
-    session(['cart' => $cart]);
-    return redirect()->back()->with('success', $all[$slug]['title'] . ' added to cart!');
-})->name('cart.add');
-
-Route::post('/cart/remove', function (Request $request) {
-    $index = (int) $request->input('index');
-    $cart = session()->get('cart', []);
-    if (isset($cart[$index])) {
-        unset($cart[$index]);
-        $cart = array_values($cart);
-        session(['cart' => $cart]);
-    }
-    return redirect()->route('cart.show');
-})->name('cart.remove');
-
-Route::post('/cart/clear', function () {
-    session(['cart' => []]);
-    return redirect()->route('cart.show');
-})->name('cart.clear');
-
-// Admin pages (basic)
-Route::prefix('admin')->group(function () {
-    Route::get('/', function () {
-        return redirect()->route('admin.posters.index');
-    })->name('admin.index');
-
-    Route::get('/posters', function () {
-        return view('admin.posters.index', ['posters' => all_posters()]);
-    })->name('admin.posters.index');
-
-    Route::get('/posters/{slug}', function (string $slug) {
-        $all = all_posters();
-        abort_unless(array_key_exists($slug, $all), 404);
-        $poster = $all[$slug] + ['slug' => $slug];
-        return view('admin.posters.show', ['poster' => $poster]);
-    })->name('admin.posters.show');
-});
-
-// Poster customization page
-Route::get('/posters-customize', function () {
-    return view('poster-customize');
+// Poster customize placeholder so existing link works
+Route::get('/custom', function () {
+    return view('poster.customize');
 })->name('poster.customize');
+
+// Checkout & Orders
+Route::middleware('auth')->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+
+    Route::get('/orders', [OrdersController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('orders.show');
+});
+
+// Admin posters CRUD (guarded by admin gate)
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:manage-posters'])->group(function () {
+    Route::get('/posters', [PostersAdminController::class, 'index'])->name('posters.index');
+    Route::get('/posters/create', [PostersAdminController::class, 'create'])->name('posters.create');
+    Route::post('/posters', [PostersAdminController::class, 'store'])->name('posters.store');
+    Route::get('/posters/{poster}/edit', [PostersAdminController::class, 'edit'])->name('posters.edit');
+    Route::put('/posters/{poster}', [PostersAdminController::class, 'update'])->name('posters.update');
+    Route::delete('/posters/{poster}', [PostersAdminController::class, 'destroy'])->name('posters.destroy');
+});

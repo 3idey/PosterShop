@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Database\Seeders\PosterSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +14,34 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Admin user
+        User::updateOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('password'),
+                'phone_number' => '01234567890',
+                'address' => '123 Admin St',
+                'city' => 'Cairo',
+                'is_admin' => true,
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Regular user
+        User::updateOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => Hash::make('password'),
+                'phone_number' => '01111111111',
+                'address' => '123 Test St',
+                'city' => 'Giza',
+                'is_admin' => false,
+            ]
+        );
+
+        $this->call([
+            PosterSeeder::class,
         ]);
     }
 }

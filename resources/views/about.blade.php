@@ -1,11 +1,7 @@
-<x-header title="About" />
+@extends('components.layout')
 
-<x-layout>
-    <div class="ml-64 flex-1 p-10">
-        <h1 class="text-3xl font-bold mb-4">About Poster Shop</h1>
-        <p class="text-gray-600">PosterShop is your go-to platform for discovering and sharing creative posters.</p>
-        <p class="mt-4">Whether you're an artist looking to showcase your work or a poster enthusiast, PosterShop has
-            something for everyone.</p>
-    </div>
-</x-layout>
-<x-footer />
+@section('content')
+    <h1 class="text-3xl font-extrabold text-indigo-700 mb-4">About PosterShop</h1>
+    <p class="text-indigo-700/80">PosterShop is your go-to platform for discovering and sharing creative posters.</p>
+    <p class="mt-4 text-indigo-700/80">Whether you're an artist looking to showcase your work or a poster enthusiast, PosterShop has something for everyone.</p>
+@endsection

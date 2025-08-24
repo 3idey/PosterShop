@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<\\Database\\Factories\\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -24,6 +24,7 @@ class User extends Authenticatable
         'phone_number',
         'address',
         'city',
+        'is_admin',
     ];
 
     /**
@@ -47,5 +48,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(\App\Models\Order::class);
+    }
+
+    public function cart()
+    {
+        return $this->hasOne(\App\Models\Cart::class);
     }
 }

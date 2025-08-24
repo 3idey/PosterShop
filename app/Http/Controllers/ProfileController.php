@@ -32,9 +32,18 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
-        // Validate and update the profile data
-        // ...
+        $user = $request->user();
 
-        return redirect()->route('profile.show')->with('status', 'Profile updated successfully!');
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'phone_number' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $user->fill($validated)->save();
+
+        return redirect()->route('profile.show')->with('success', 'Profile updated successfully!');
     }
 }
